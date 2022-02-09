@@ -73,7 +73,10 @@ class LanguagePicker extends Component implements BootstrapInterface
                     $this->saveLanguageIntoApp($language);
                 }
                 // Case where a cookie is available
-                elseif ($request->cookies->has($this->cookieName)) {
+                elseif (
+                    isset($request->cookieValidationKey)
+                    && $request->cookies->has($this->cookieName)
+                ) {
                     if ($this->isValidLanguage($language = $request->cookies->getValue($this->cookieName))) {
                         $this->saveLanguageIntoApp($language); /** @phpstan-ignore-line */
                     } else {
