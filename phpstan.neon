@@ -7,6 +7,7 @@ parameters:
     - src/adapters
   treatPhpDocTypesAsCertain: false
   ignoreErrors:
+    - '#Access to static property (\$app) on an unknown class Yii#'
     - '#Call to static method (createObject|t)\(\) on an unknown class Yii#'
     - "#Casting to string something that's already string#"
     - '#Test::data[a-zA-Z0-9_]+\(\) return type has no value type specified in iterable type#'
