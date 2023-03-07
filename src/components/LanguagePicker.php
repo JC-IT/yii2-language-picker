@@ -28,6 +28,10 @@ class LanguagePicker extends Component implements BootstrapInterface
     public ?int $cookieExpireDays = 30;
     public string $cookieName = '_language';
     public string $queryParam = '_lang';
+    /**
+     * Query param for executing a page in a specific language only once
+     */
+    public string $queryParamOnce = '_langOnce';
     public ?string $userProperty = 'language';
 
     /**
@@ -40,6 +44,28 @@ class LanguagePicker extends Component implements BootstrapInterface
         parent::__construct($config);
     }
 
+    public function addQueryOnceParam(array $url, string $language): array
+    {
+        if (!$this->isValidLanguage($language)) {
+            throw new InvalidLanguageException($language);
+        }
+
+        $url[$this->queryParamOnce] = $language;
+
+        return $url;
+    }
+
+    public function addQueryParam(array $url, string $language): array
+    {
+        if (!$this->isValidLanguage($language)) {
+            throw new InvalidLanguageException($language);
+        }
+
+        $url[$this->queryParam] = $language;
+
+        return $url;
+    }
+
     public function bootstrap($app): void
     {
         if ($app instanceof WebApplication) {
@@ -47,8 +73,19 @@ class LanguagePicker extends Component implements BootstrapInterface
                 $request = $app->request;
                 $response = $app->response;
 
+                // Case where query once parameter is set
+                if (!is_null($language = $request->get($this->queryParamOnce))) {
+                    /** @var string $language */
+                    if ($this->isValidLanguage($language)) {
+                        $this->saveLanguageIntoApp($language);
+                        $this->saveLanguageIntoCallback($language);
+
+                        if ($request->isAjax) {
+                            $this->redirect();
+                        }
+                    }
                 // Case where query parameter is set
-                if (!is_null($language = $request->get($this->queryParam))) {
+                } elseif (!is_null($language = $request->get($this->queryParam))) {
                     /** @var string $language */
                     if ($this->isValidLanguage($language)) {
                         $this->saveLanguageIntoApp($language);
